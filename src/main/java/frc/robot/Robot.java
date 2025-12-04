@@ -17,6 +17,7 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class Robot extends TimedRobot {
+  private final int drive_mode = 2; // 0: Tank, 1: Arcade, 2: Curvature
 
   private final XboxController m_driverController = new XboxController(0);
 
@@ -92,13 +93,26 @@ public class Robot extends TimedRobot {
   }
 
   // ---------------- TELEOP DRIVE ----------------
+  @SuppressWarnings("unused")
   @Override
   public void teleopPeriodic() {
-
-    double forward  = -m_driverController.getLeftY();
-    double turn    = -m_driverController.getRightX();
-
-    m_drive.arcadeDrive(forward, turn);
+    if (drive_mode == 0) {
+      // Tank Drive
+      double left = -m_driverController.getLeftY();
+      double right = -m_driverController.getRightY();
+      m_drive.tankDrive(left, right);
+    } else if (drive_mode == 1) {
+      // Arcade Drive
+      double forward = -m_driverController.getLeftY();
+      double rotation = m_driverController.getRightX();
+      m_drive.arcadeDrive(forward, rotation);
+    } else if (drive_mode == 2) {
+      // Curvature Drive
+      double forward = -m_driverController.getLeftY();
+      double rotation = m_driverController.getRightX();
+      boolean isQuickTurn = m_driverController.getRightBumperButton();
+      m_drive.curvatureDrive(forward, rotation, isQuickTurn);
+    }
   }
 
   // --------------- SIMULATION LOOP ---------------
