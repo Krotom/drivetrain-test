@@ -65,7 +65,6 @@ public class Robot extends TimedRobot {
 
     // DifferentialDrive
     m_drive = new DifferentialDrive(m_leftLeader, m_rightLeader);
-    m_drive.setDeadband(0.05);
 
     // --------------- SIM SETUP ----------------
     m_driveSim = new DifferentialDrivetrainSim(
