@@ -7,8 +7,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import com.revrobotics.spark.SparkMax;
@@ -61,12 +62,17 @@ public class Robot extends TimedRobot {
     );
 
     m_fieldSim = new Field2d();
-    SmartDashboard.putData("Field", m_fieldSim);
 
     driveChooser.addOption("Tank Drive", 0);
     driveChooser.setDefaultOption("Arcade Drive", 1);
     driveChooser.addOption("Curvature Drive", 2);
-    SmartDashboard.putData("Drive Mode", driveChooser);
+
+    Shuffleboard.getTab("Default")
+        .add("Drive Mode", driveChooser)
+        .withWidget(BuiltInWidgets.kSplitButtonChooser);
+
+    Shuffleboard.getTab("Default")
+        .add("Field View", m_fieldSim);
   }
 
   @Override
