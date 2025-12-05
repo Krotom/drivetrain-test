@@ -90,19 +90,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    double left = -m_driverController.getLeftY();
+    double right = -m_driverController.getRightY();
+    boolean isQuickTurn = m_driverController.getRightBumperButton();
     if (drive_mode == 0) {
-      double left = -m_driverController.getLeftY();
-      double right = -m_driverController.getRightY();
       m_drive.tankDrive(left, right);
     } else if (drive_mode == 1) {
-      double forward = -m_driverController.getLeftY();
-      double rotation = -m_driverController.getRightX();
-      m_drive.arcadeDrive(forward, rotation);
+      m_drive.arcadeDrive(left, right);
     } else if (drive_mode == 2) {
-      double forward = -m_driverController.getLeftY();
-      double rotation = -m_driverController.getRightX();
-      boolean isQuickTurn = m_driverController.getRightBumperButton();
-      m_drive.curvatureDrive(forward, rotation, isQuickTurn);
+      m_drive.curvatureDrive(left, right, isQuickTurn);
     }
   }
 
