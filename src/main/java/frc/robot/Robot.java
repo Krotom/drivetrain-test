@@ -35,9 +35,9 @@ public class Robot extends TimedRobot {
   private final SparkMax m_rightFollower = new SparkMax(1, SparkMax.MotorType.kBrushed);
 
   private final PIDController turnPID =
-    new PIDController(1.2, 0.0, 0.1);
+    new PIDController(1.2, 1.0, 0.2);
 
-private final PIDController drivePID =
+  private final PIDController drivePID =
     new PIDController(1.0, 0.0, 0.0);
 
   private DifferentialDrive m_drive;
@@ -95,21 +95,22 @@ private final PIDController drivePID =
 
   @Override
   public void autonomousPeriodic() {
-    Pose2d targetPose2d = new Pose2d(1.0, 7.0, new Rotation2d(Math.toRadians(54.0)));
+    Pose2d targetPose2d = new Pose2d(1.0, 7.0, new Rotation2d(Math.toRadians(130.4)));
     go2Target(targetPose2d);
   }
 
   @Override
   public void teleopPeriodic() {
     double left = -m_driverController.getLeftY();
-    double right = -m_driverController.getRightY();
+    double rightY = -m_driverController.getRightY();
+    double rightX = -m_driverController.getRightX();
     boolean isQuickTurn = m_driverController.getRightBumperButton();
     if (drive_mode == 0) {
-      m_drive.tankDrive(left, right);
+      m_drive.tankDrive(left, rightY);
     } else if (drive_mode == 1) {
-      m_drive.arcadeDrive(left, right);
+      m_drive.arcadeDrive(left, rightX);
     } else if (drive_mode == 2) {
-      m_drive.curvatureDrive(left, right, isQuickTurn);
+      m_drive.curvatureDrive(left, rightX, isQuickTurn);
     }
   }
 
@@ -133,9 +134,9 @@ private final PIDController drivePID =
     double distance = Math.hypot(errorX, errorY);
 
     double robotHeading = current.getRotation().getRadians();
-
     double angleToTarget = Math.atan2(errorY, errorX);
-    double headingError = MathUtil.angleModulus(angleToTarget - robotHeading);
+
+    double headingError = -MathUtil.angleModulus(angleToTarget - robotHeading);
 
     double finalHeadingError =
         MathUtil.angleModulus(target.getRotation().getRadians() - robotHeading);
@@ -145,12 +146,15 @@ private final PIDController drivePID =
 
     if (distance > 0.25) {
         turnOut = turnPID.calculate(headingError, 0);
-        driveOut = drivePID.calculate(distance, 0);
-    } else {
+        driveOut = -drivePID.calculate(distance, 0);
+    } else if (!turnPID.atSetpoint()) {
         turnOut = turnPID.calculate(finalHeadingError, 0);
+        driveOut = 0;
+    } else {
+        turnOut = 0;
         driveOut = 0;
     }
 
     m_drive.arcadeDrive(driveOut, turnOut);
-}
+  }
 }
