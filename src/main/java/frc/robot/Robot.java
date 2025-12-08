@@ -95,7 +95,7 @@ private final PIDController drivePID =
 
   @Override
   public void autonomousPeriodic() {
-    Pose2d targetPose2d = new Pose2d(5.0, 5.0, new Rotation2d(Math.toRadians(-56.0)));
+    Pose2d targetPose2d = new Pose2d(1.0, 7.0, new Rotation2d(Math.toRadians(54.0)));
     go2Target(targetPose2d);
   }
 
@@ -128,19 +128,33 @@ private final PIDController drivePID =
     m_fieldSim.setRobotPose(m_driveSim.getPose());
   }
 
-  public void go2Target(Pose2d target){
-    double errorX = target.getX() - m_driveSim.getPose().getX();
-    double errorY = target.getY() - m_driveSim.getPose().getY();
-    double errorHypot = Math.hypot(errorX, errorY);
-    double rotRad = Math.atan2(errorY, errorX);
-    double errorRot = MathUtil.angleModulus(target.getRotation().getRadians() - rotRad);
+  public void go2Target(Pose2d target) {
 
-    double turnOut = turnPID.calculate(errorRot, 0);
-    double driveOut = 0;
-    if (Math.abs(Math.toDegrees(errorRot)) < 0.2) {
-      driveOut = drivePID.calculate(errorHypot, 0);
+    Pose2d current = m_driveSim.getPose();
+
+    double errorX = target.getX() - current.getX();
+    double errorY = target.getY() - current.getY();
+    double distance = Math.hypot(errorX, errorY);
+
+    double robotHeading = current.getRotation().getRadians();
+
+    double angleToTarget = Math.atan2(errorY, errorX);
+    double headingError = MathUtil.angleModulus(angleToTarget - robotHeading);
+
+    double finalHeadingError =
+        MathUtil.angleModulus(target.getRotation().getRadians() - robotHeading);
+
+    double turnOut;
+    double driveOut;
+
+    if (distance > 0.25) {
+        turnOut = turnPID.calculate(headingError, 0);
+        driveOut = drivePID.calculate(distance, 0);
+    } else {
+        turnOut = turnPID.calculate(finalHeadingError, 0);
+        driveOut = 0;
     }
 
-    m_drive.arcadeDrive(turnOut, driveOut);
-  }
+    m_drive.arcadeDrive(driveOut, turnOut);
+}
 }
