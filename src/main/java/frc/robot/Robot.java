@@ -1,6 +1,10 @@
 package frc.robot;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -29,6 +33,12 @@ public class Robot extends TimedRobot {
 
   private final SparkMax m_rightLeader = new SparkMax(0, SparkMax.MotorType.kBrushed);
   private final SparkMax m_rightFollower = new SparkMax(1, SparkMax.MotorType.kBrushed);
+
+  private final PIDController turnPID =
+    new PIDController(1.2, 0.0, 0.1);
+
+private final PIDController drivePID =
+    new PIDController(1.0, 0.0, 0.0);
 
   private DifferentialDrive m_drive;
 
@@ -85,7 +95,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    m_drive.arcadeDrive(0.5, 0.0);
+    Pose2d targetPose2d = new Pose2d(1.0, 7.0, new Rotation2d(Math.toRadians(54.0)));
+    go2Target(targetPose2d);
   }
 
   @Override
@@ -112,4 +123,34 @@ public class Robot extends TimedRobot {
 
     m_fieldSim.setRobotPose(m_driveSim.getPose());
   }
+
+  public void go2Target(Pose2d target) {
+
+    Pose2d current = m_driveSim.getPose();
+
+    double errorX = target.getX() - current.getX();
+    double errorY = target.getY() - current.getY();
+    double distance = Math.hypot(errorX, errorY);
+
+    double robotHeading = current.getRotation().getRadians();
+
+    double angleToTarget = Math.atan2(errorY, errorX);
+    double headingError = MathUtil.angleModulus(angleToTarget - robotHeading);
+
+    double finalHeadingError =
+        MathUtil.angleModulus(target.getRotation().getRadians() - robotHeading);
+
+    double turnOut;
+    double driveOut;
+
+    if (distance > 0.25) {
+        turnOut = turnPID.calculate(headingError, 0);
+        driveOut = drivePID.calculate(distance, 0);
+    } else {
+        turnOut = turnPID.calculate(finalHeadingError, 0);
+        driveOut = 0;
+    }
+
+    m_drive.arcadeDrive(driveOut, turnOut);
+}
 }
