@@ -137,6 +137,16 @@ int autoIndex;
 
   @Override
   public void teleopPeriodic() {
+    if(m_driverController.getLeftBumperButton()){
+      go2Target(m_coralGet);
+      return;
+    }
+
+    if(m_driverController.getRightBumperButton()){
+      go2Target(m_coralShoot);
+      return;
+    }
+
     double left = -m_driverController.getLeftY();
     double rightY = -m_driverController.getRightY();
     double rightX = -m_driverController.getRightX();
@@ -144,15 +154,7 @@ int autoIndex;
       m_drive.tankDrive(left, rightY);
     } else if (drive_mode == 1) {
       m_drive.arcadeDrive(left, rightX);
-    }
-
-    if(m_driverController.getLeftBumperButton()){
-      go2Target(m_coralGet);
-    }
-
-    if(m_driverController.getRightBumperButton()){
-      go2Target(m_coralShoot);
-    }
+    }    
   }
 
   @Override
