@@ -94,10 +94,10 @@ int autoIndex;
 
     Shuffleboard.getTab("Default")
         .add("Drive Mode", driveChooser)
-        .withWidget(BuiltInWidgets.kSplitButtonChooser);
+        .withWidget(BuiltInWidgets.kSplitButtonChooser).withSize(2, 1).withPosition(8, 0);
 
     Shuffleboard.getTab("Default")
-        .add("Field View", m_fieldSim);
+        .add("Field View", m_fieldSim).withSize(8, 4);
   }
 
   @Override
