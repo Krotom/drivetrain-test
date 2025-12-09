@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
   private final SparkMax m_rightFollower = new SparkMax(1, SparkMax.MotorType.kBrushed);
 
   private final PIDController turnPID =
-    new PIDController(1.2, 1.0, 0.2);
+    new PIDController(1.2, 0.0, 0.2);
 
   private final PIDController drivePID =
     new PIDController(1.0, 0.0, 0.0);
@@ -95,7 +95,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    Pose2d targetPose2d = new Pose2d(1.0, 7.0, new Rotation2d(Math.toRadians(130.4)));
+    Pose2d targetPose2d = new Pose2d(1.0, 7.0, new Rotation2d(Math.toRadians(-54.4)));
     go2Target(targetPose2d);
   }
 
@@ -148,7 +148,7 @@ public class Robot extends TimedRobot {
         turnOut = turnPID.calculate(headingError, 0);
         driveOut = -drivePID.calculate(distance, 0);
     } else if (!turnPID.atSetpoint()) {
-        turnOut = turnPID.calculate(finalHeadingError, 0);
+        turnOut = turnPID.calculate(0, finalHeadingError);
         driveOut = 0;
     } else {
         turnOut = 0;
