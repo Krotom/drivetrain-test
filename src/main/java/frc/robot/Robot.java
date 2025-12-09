@@ -94,10 +94,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {
-    Pose2d targetPose2d = new Pose2d(1.0, 7.0, new Rotation2d(Math.toRadians(-54.4)));
-    go2Target(targetPose2d);
-  }
+  public void autonomousPeriodic() {}
 
   @Override
   public void teleopPeriodic() {
@@ -111,6 +108,11 @@ public class Robot extends TimedRobot {
       m_drive.arcadeDrive(left, rightX);
     } else if (drive_mode == 2) {
       m_drive.curvatureDrive(left, rightX, isQuickTurn);
+    }
+
+    if(m_driverController.getLeftBumperButton()){
+      Pose2d targetPose2d = new Pose2d(1.0, 7.0, new Rotation2d(Math.toRadians(-54.4)));
+      go2Target(targetPose2d);
     }
   }
 
