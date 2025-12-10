@@ -48,14 +48,35 @@ public class Robot extends TimedRobot {
   Pose2d m_zeroZero = new Pose2d(0, 0, new Rotation2d());
   Pose2d m_fieldMiddle = new Pose2d(4.5, 4.0, new Rotation2d());
   Pose2d m_coralGet = new Pose2d(1.0, 7.0, new Rotation2d());
-  Pose2d m_coralShoot = new Pose2d(2.8, 4.0, new Rotation2d());
+  Pose2d m_leftUp = new Pose2d(3.8, 5.1, new Rotation2d());
+  Pose2d m_leftMid = new Pose2d(3.2, 4.0, new Rotation2d());
+  Pose2d m_leftDown = new Pose2d(3.8, 2.9, new Rotation2d());
+  Pose2d m_rightUp = new Pose2d(5.1, 5.1, new Rotation2d());
+  Pose2d m_rightMid = new Pose2d(5.7, 4.0, new Rotation2d());
+  Pose2d m_rightDown = new Pose2d(5.1, 2.9, new Rotation2d());
 
-  Pose2d[] autoTargets = new Pose2d[] {
-    m_coralShoot,
+  Pose2d[] radialTargets = {
+    m_rightMid,
+    m_rightDown,
+    m_leftDown,
+    m_leftMid,
+    m_leftUp,
+    m_rightUp
+  };
+
+  
+  Pose2d[] autoTargets = {
+    m_leftDown,
     m_coralGet,
-    m_coralShoot,
+    m_leftMid,
     m_coralGet,
-    m_coralShoot,
+    m_leftUp,
+    m_coralGet,
+    m_rightDown,
+    m_coralGet,
+    m_rightMid,
+    m_coralGet,
+    m_rightUp,
     m_zeroZero
 };
 
@@ -137,15 +158,18 @@ int autoIndex;
 
   @Override
   public void teleopPeriodic() {
-    if(m_driverController.getLeftBumperButton()){
-      go2Target(m_coralGet);
-      return;
+    if (m_driverController.getLeftBumperButton()) {
+      Pose2d target = getRadialTargetFromJoystick();
+      if (target != null) {
+          go2Target(target);
+          return;
+      }
     }
 
-    if(m_driverController.getRightBumperButton()){
-      go2Target(m_coralShoot);
+  if (m_driverController.getRawAxis(2) > 0.3) {
+      go2Target(m_coralGet);
       return;
-    }
+  }
 
     double left = -m_driverController.getLeftY();
     double rightY = -m_driverController.getRightY();
@@ -167,6 +191,25 @@ int autoIndex;
 
     m_fieldSim.setRobotPose(m_driveSim.getPose());
   }
+
+  private Pose2d getRadialTargetFromJoystick() {
+    double x = -m_driverController.getLeftX();
+    double y = -m_driverController.getLeftY();
+
+    if (Math.hypot(x, y) < 0.25) {
+        return null;
+    }
+
+    double angle = Math.atan2(y, x);         
+    double angleDeg = Math.toDegrees(angle); 
+
+    double wrapped = angleDeg + 180.0;
+
+    int sector = (int)Math.floor((wrapped + 30.0) / 60.0) % 6;
+
+    return radialTargets[sector];
+}
+
 
   public boolean go2Target(Pose2d target) {return go2Target(target, false);}
 
