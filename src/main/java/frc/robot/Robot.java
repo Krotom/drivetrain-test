@@ -78,9 +78,9 @@ public class Robot extends TimedRobot {
     m_coralGet,
     m_rightUp,
     m_zeroZero
-};
+  };
 
-int autoIndex;
+  int autoIndex;
 
   public Robot() {
     SparkMaxConfig leftConfig = new SparkMaxConfig();
@@ -102,7 +102,7 @@ int autoIndex;
         DCMotor.getCIM(2),
         10.71,
         7.5,
-        50.0,
+        20.0,
         Units.inchesToMeters(3),
         Units.inchesToMeters(28),
         VecBuilder.fill(0.005, 0.005, 0.001, 0.05, 0.05, 0.005, 0.005)
@@ -166,10 +166,10 @@ int autoIndex;
       }
     }
 
-  if (m_driverController.getRawAxis(2) > 0.3) {
-      go2Target(m_coralGet);
-      return;
-  }
+    if (m_driverController.getRawAxis(2) > 0.3) {
+        go2Target(m_coralGet);
+        return;
+    }
 
     double left = -m_driverController.getLeftY();
     double rightY = -m_driverController.getRightY();
@@ -208,7 +208,7 @@ int autoIndex;
     int sector = (int)Math.floor((wrapped + 30.0) / 60.0) % 6;
 
     return radialTargets[sector];
-}
+  }
 
 
   public boolean go2Target(Pose2d target) {return go2Target(target, false);}
